@@ -9,3 +9,5 @@ This text has been added from the linux client
 ### We are now on 2020-11-16
 
 This text is added during lecture 24
+
+I am adding this during the lecture
