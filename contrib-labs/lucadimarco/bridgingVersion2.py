@@ -24,6 +24,7 @@ def myNetwork():
     h1 = net.addHost('h1', cls=Host, ip=None, mac='00:00:10:10:00:01')
     h2 = net.addHost('h2', cls=Host, ip=None, mac='00:00:10:10:00:02')
     h3 = net.addHost('h3', cls=Host, ip=None, mac='00:00:10:10:00:03')
+
     h4 = net.addHost('h4', cls=Host, ip=None, mac='00:00:10:10:00:04')
 
     info( '*** Add links\n')
@@ -33,8 +34,11 @@ def myNetwork():
     Link(s1, h2, intfName1='s1-eth1')
     #net.addLink(s1, h3, 2, 0)
     Link(s1, h3, intfName1='s1-eth2')
-    #net.addLink(s2, h4, 0, 0)
-    Link(s2, h3, intfName1='s1-eth3')
+
+    #net.addLink(s1, s2, 3, 0)
+    Link(s1, s2, intfName1='s1-eth3', intfName2='s2-eth0')
+    #net.addLink(s2, h4, 1, 0)
+    Link(s2, h4, intfName1='s2-eth1')
 
     info( '*** Starting network\n')
     net.build()
@@ -49,6 +53,7 @@ def myNetwork():
     s1.cmd('sysctl -w net.ipv6.conf.default.disable_ipv6=1')
     s2.cmd('sysctl -w net.ipv6.conf.all.disable_ipv6=1')
     s2.cmd('sysctl -w net.ipv6.conf.default.disable_ipv6=1')
+
     h1.cmd('sysctl -w net.ipv6.conf.all.disable_ipv6=1')
     h1.cmd('sysctl -w net.ipv6.conf.default.disable_ipv6=1')
     h2.cmd('sysctl -w net.ipv6.conf.all.disable_ipv6=1')
@@ -58,11 +63,30 @@ def myNetwork():
     h4.cmd('sysctl -w net.ipv6.conf.all.disable_ipv6=1')
     h4.cmd('sysctl -w net.ipv6.conf.default.disable_ipv6=1')
 
-    info( '*** Setting up the NET\n')
-
-
-
     info( '*** Post configure switches and hosts\n')
+    h1.cmd('ip addr add 10.0.0.1/24 dev h1-eth0')
+    h1.cmd('ip link set h1-eth0 up')
+    h2.cmd('ip addr add 10.0.0.2/24 dev h2-eth0')
+    h2.cmd('ip link set h2-eth0 up')
+    h3.cmd('ip addr add 10.0.0.3/24 dev h3-eth0')
+    h3.cmd('ip link set h3-eth0 up')
+    h4.cmd('ip addr add 10.0.0.4/24 dev h4-eth0')
+    h4.cmd('ip link set h4-eth0 up')
+
+    s1.cmd('ip link add br0 type bridge')
+    s1.cmd('ip link set s1-eth0 master br0')
+    s1.cmd('ip link set s1-eth1 master br0')
+    s1.cmd('ip link set s1-eth2 master br0')
+    s1.cmd('ip link set s1-eth3 master br0')
+    s1.cmd('ip link set br0 up')
+
+    s2.cmd('ip link add br0 type bridge')
+    s2.cmd('ip link set s2-eth0 master br0')
+    s2.cmd('ip link set s2-eth1 master br0')
+    s2.cmd('ip link set br0 up')
+
+
+
 
     CLI(net)
     net.stop()
